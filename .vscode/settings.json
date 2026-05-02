@@ -1,3 +1,20 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:venv"
+  // Python environment
+  "python-envs.defaultEnvManager": "ms-python.python:venv",
+
+  // Ruff: format and fix on save (requires charliermarsh.ruff extension)
+  "editor.formatOnSave": true,
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.rscode-ruff",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
+  },
+
+  // MCP: auto-start server when config changes (experimental)
+  "chat.mcp.autoStart": true,
+
+  // Show MCP server logs in output panel for debugging
+  "chat.mcp.discovery.enabled": true
 }

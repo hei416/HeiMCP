@@ -1,0 +1,16 @@
+{
+  // HeiMCP — VS Code + GitHub Copilot auto-start config
+  // When you open this repo in VS Code, Copilot will auto-discover
+  // and start the HeiMCP server. No manual setup needed.
+  //
+  // Prerequisites: uv installed (https://docs.astral.sh/uv/getting-started/installation/)
+  // Install:  pip install uv  OR  curl -LsSf https://astral.sh/uv/install.sh | sh
+  "servers": {
+    "heimcp": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "skills_server.py"],
+      "cwd": "${workspaceFolder}"
+    }
+  }
+}
