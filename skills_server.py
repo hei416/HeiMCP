@@ -2,20 +2,20 @@ from fastmcp import FastMCP
 from pydantic import BaseModel, Field
 
 from src.code_review import evaluate_pr_logic
-from src.unit_testing import evaluate_test_quality
-from src.nn_architecture import check_architecture
-from src.rag_faithfulness import evaluate_faithfulness
 from src.commit_linter import lint_commit_message
+from src.nn_architecture import check_architecture
 from src.prompts import (
     code_review_prompt,
-    unit_test_review_prompt,
     rag_faithfulness_prompt,
+    unit_test_review_prompt,
 )
+from src.rag_faithfulness import evaluate_faithfulness
 from src.resources import (
     get_conventional_commits_guide,
     get_drama_free_review_guide,
     get_rag_quality_guide,
 )
+from src.unit_testing import evaluate_test_quality
 
 # ── Server ─────────────────────────────────────────────────────────────
 mcp = FastMCP(
@@ -30,7 +30,11 @@ mcp = FastMCP(
 
 # ── Pydantic Input Schemas ───────────────────────────────────────────────
 class PRReviewInput(BaseModel):
-    pr_description: str = Field(..., min_length=20, description="PR intent, must be at least 20 chars")
+    pr_description: str = Field(
+        ...,
+        min_length=20,
+        description="PR intent, must be at least 20 chars",
+    )
     code_diff: str = Field(..., min_length=1, description="The raw code diff")
 
 
