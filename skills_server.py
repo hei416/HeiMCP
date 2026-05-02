@@ -1,7 +1,6 @@
 from fastmcp import FastMCP
 from pydantic import BaseModel, Field
 
-# Import skill modules
 from src.code_review import evaluate_pr_logic
 from src.unit_testing import evaluate_test_quality
 from src.nn_architecture import check_architecture
@@ -13,12 +12,12 @@ from src.prompts import (
     rag_faithfulness_prompt,
 )
 from src.resources import (
-    CONVENTIONAL_COMMITS_GUIDE,
-    DRAMA_FREE_REVIEW_GUIDE,
-    RAG_QUALITY_GUIDE,
+    get_conventional_commits_guide,
+    get_drama_free_review_guide,
+    get_rag_quality_guide,
 )
 
-# ── Server ──────────────────────────────────────────────────────────────────
+# ── Server ─────────────────────────────────────────────────────────────
 mcp = FastMCP(
     "HeiMCP",
     instructions=(
@@ -29,7 +28,7 @@ mcp = FastMCP(
 )
 
 
-# ── Pydantic Input Schemas ───────────────────────────────────────────────────
+# ── Pydantic Input Schemas ───────────────────────────────────────────────
 class PRReviewInput(BaseModel):
     pr_description: str = Field(..., min_length=20, description="PR intent, must be at least 20 chars")
     code_diff: str = Field(..., min_length=1, description="The raw code diff")
@@ -41,7 +40,7 @@ class RAGInput(BaseModel):
     generated_answer: str = Field(..., min_length=10)
 
 
-# ── Tools ────────────────────────────────────────────────────────────────────
+# ── Tools ───────────────────────────────────────────────────────────────────
 @mcp.tool()
 async def skill_code_review_logic(input: PRReviewInput) -> str:
     """
@@ -73,8 +72,6 @@ async def skill_nn_architecture_check(layers_info: str) -> str:
     """
     Validates tensor shape flow through PyTorch Conv2d / ConvTranspose2d layers.
     Input: JSON string with 'input_shape' [C,H,W] and 'layers' list.
-    Example: {"input_shape": [3, 64, 64], "layers": [{"name": "conv1", "type": "Conv2d",
-    "out_channels": 32, "kernel_size": 3, "stride": 1, "padding": 1}]}
     """
     if not layers_info or not layers_info.strip():
         return "ERROR: layers_info cannot be empty. Provide a JSON string."
@@ -89,7 +86,7 @@ async def skill_rag_faithfulness_check(input: RAGInput) -> str:
     """
     Heuristic faithfulness checker for RAG pipelines.
     Detects hallucination risk by checking if answer claims are grounded
-    in the retrieved context. Use before expensive NLI model calls.
+    in the retrieved context.
     """
     try:
         return evaluate_faithfulness(
@@ -103,7 +100,6 @@ async def skill_rag_faithfulness_check(input: RAGInput) -> str:
 async def skill_lint_commit_message(commit_message: str) -> str:
     """
     Lints a git commit message against Conventional Commits v1.0 spec.
-    Checks type validity, subject length, imperative mood, and body format.
     """
     if not commit_message or not commit_message.strip():
         return "ERROR: commit_message cannot be empty."
@@ -113,7 +109,7 @@ async def skill_lint_commit_message(commit_message: str) -> str:
         return f"ERROR: Commit lint failed — {type(e).__name__}: {e}"
 
 
-# ── Prompts ──────────────────────────────────────────────────────────────────
+# ── Prompts (content from prompts/*.md) ─────────────────────────────────────
 @mcp.prompt()
 def prompt_code_review(pr_description: str, code_diff: str) -> str:
     """Deep LLM-guided code review using Drama-Free principles."""
@@ -132,25 +128,25 @@ def prompt_rag_faithfulness(query: str, context: str, answer: str) -> str:
     return rag_faithfulness_prompt(query, context, answer)
 
 
-# ── Resources ────────────────────────────────────────────────────────────────
+# ── Resources (content from resources/*.md) ────────────────────────────────
 @mcp.resource("resource://guides/conventional-commits")
 def resource_conventional_commits() -> str:
     """Conventional Commits v1.0 quick reference guide."""
-    return CONVENTIONAL_COMMITS_GUIDE
+    return get_conventional_commits_guide()
 
 
 @mcp.resource("resource://guides/drama-free-review")
 def resource_drama_free_review() -> str:
     """Drama-Free Code Review principles reference."""
-    return DRAMA_FREE_REVIEW_GUIDE
+    return get_drama_free_review_guide()
 
 
 @mcp.resource("resource://guides/rag-quality")
 def resource_rag_quality() -> str:
     """RAG faithfulness and quality standards guide."""
-    return RAG_QUALITY_GUIDE
+    return get_rag_quality_guide()
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# ── Entry point ─────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     mcp.run()
