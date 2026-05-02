@@ -7,7 +7,11 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  # -------------------------------------------------------------------
+  # Job 1: Lint (ruff) — style, imports, complexity
+  # -------------------------------------------------------------------
+  lint:
+    name: Lint (ruff)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,8 +24,72 @@ jobs:
       - name: Install uv
         run: pip install uv
 
+      - name: Install dev dependencies
+        run: uv sync --group dev
+
+      - name: Run ruff (lint + complexity)
+        run: uv run ruff check src/ skills_server.py
+        # Checks:
+        #   E/W  — PEP 8 style
+        #   F    — undefined names, unused imports
+        #   C90  — cyclomatic complexity > 10 fails here
+        #   B    — bugbear (common logic bugs)
+        #   UP   — outdated Python syntax
+        #   I    — import order
+
+      - name: Run ruff (format check)
+        run: uv run ruff format --check src/ skills_server.py
+
+  # -------------------------------------------------------------------
+  # Job 2: Security scan (bandit)
+  # -------------------------------------------------------------------
+  security:
+    name: Security Scan (bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dev dependencies
+        run: uv sync --group dev
+
+      - name: Run bandit security scan
+        run: |
+          uv run bandit -r src/ skills_server.py \
+            -ll \
+            --skip B101,B603 \
+            --format txt
+        # -ll = fail on MEDIUM or higher severity
+        # --skip B101 = allow assert statements
+        # --skip B603 = suppress subprocess false positives
+
+  # -------------------------------------------------------------------
+  # Job 3: Tests (pytest)
+  # -------------------------------------------------------------------
+  test:
+    name: Tests (pytest)
+    runs-on: ubuntu-latest
+    needs: [lint, security]   # tests only run if lint + security pass
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        run: pip install uv
+
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --group dev
 
       - name: Run tests
-        run: uv run pytest tests/ -v --tb=short
+        run: uv run pytest

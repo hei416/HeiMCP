@@ -1,10 +1,77 @@
 [project]
-name = "engineering-mcp"
+name = "heimcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "A FastMCP toolkit encoding opinionated engineering quality rules as LLM-callable tools, prompts, and resources."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "fastmcp>=3.2.4",
     "httpx>=0.28.1",
 ]
+
+[project.urls]
+homepage = "https://github.com/hei416/HeiMCP"
+repository = "https://github.com/hei416/HeiMCP"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.9.0",
+    "bandit[toml]>=1.8.0",
+]
+
+# ---------------------------------------------------------------------------
+# Ruff — linting + complexity
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes (undefined names, unused imports)
+    "C90",  # mccabe complexity
+    "B",    # flake8-bugbear (common bugs & design issues)
+    "S",    # flake8-bandit security (subset)
+    "UP",   # pyupgrade (modern Python syntax)
+    "I",    # isort (import order)
+]
+ignore = [
+    "S101",  # assert statements are fine in tests
+    "B008",  # FastMCP uses default arg calls (Depends pattern)
+]
+
+[tool.ruff.lint.mccabe]
+# Cyclomatic complexity limit: functions with score > 10 will fail CI
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S"]  # Disable security rules in test files
+
+# ---------------------------------------------------------------------------
+# Bandit — security scan
+# ---------------------------------------------------------------------------
+[tool.bandit]
+targets = ["src", "skills_server.py"]
+skips = [
+    "B101",  # assert — fine in src logic
+    "B603",  # subprocess — not used, but skip false positives
+]
+severity = "medium"   # fail on MEDIUM or HIGH severity findings
+confidence = "medium" # fail on MEDIUM or HIGH confidence findings
+
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+# ---------------------------------------------------------------------------
+# Build
+# ---------------------------------------------------------------------------
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
