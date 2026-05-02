@@ -1,5 +1,5 @@
 import re
-
+import ast
 def evaluate_test_quality(test_code: str) -> str:
     """
     Evaluates unit tests based on the 'Right Way' principles.
@@ -12,7 +12,7 @@ def evaluate_test_quality(test_code: str) -> str:
         feedback.append("- Violation: Multiple assertions found. Goal: One assertion per test for specific CI failures.")
 
     # Rule: Simple Setup / Extraction
-    if len(test_code.splitlines()) > 25 and "def" not in test_code: 
+    if len(test_code.splitlines()) > 25 and test_code.count("def ") <= 1:
         feedback.append("- Suggestion: Setup looks complex. Extract factories or 'Given' steps into helper functions.")
 
     # Rule: Behavior vs Implementation
