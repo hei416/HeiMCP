@@ -1,0 +1,10 @@
+name: commit-lint
+description: >
+  Lint a git commit message against Conventional Commits v1.0 spec.
+  Checks type validity, scope, subject length, imperative mood, and body format.
+author: HeiMCP
+version: 1.0.0
+inputs:
+  - name: commit_message
+    description: The full git commit message to lint
+    required: true

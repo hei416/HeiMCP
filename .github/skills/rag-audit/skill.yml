@@ -1,0 +1,17 @@
+name: rag-audit
+description: >
+  Faithfulness audit for RAG pipeline outputs.
+  Checks if the generated answer is grounded in the retrieved context
+  and flags hallucination risk claim by claim.
+author: HeiMCP
+version: 1.0.0
+inputs:
+  - name: query
+    description: The original user query sent to the RAG pipeline
+    required: true
+  - name: retrieved_context
+    description: The retrieved document chunks used to generate the answer
+    required: true
+  - name: generated_answer
+    description: The answer produced by the LLM
+    required: true

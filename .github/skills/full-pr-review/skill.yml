@@ -1,0 +1,20 @@
+name: full-pr-review
+description: >
+  End-to-end pull request quality check using HeiMCP tools.
+  Runs Drama-Free code review, lints the commit message, and checks
+  unit test quality — then summarises everything in one report.
+author: HeiMCP
+version: 1.0.0
+inputs:
+  - name: pr_description
+    description: The PR title and description (what and why)
+    required: true
+  - name: code_diff
+    description: The raw git diff of the PR
+    required: true
+  - name: commit_message
+    description: The commit message(s) for this PR
+    required: false
+  - name: test_code
+    description: The unit test code changed or added in this PR
+    required: false
