@@ -93,9 +93,7 @@ async def skill_rag_faithfulness_check(input: RAGInput) -> str:
     in the retrieved context.
     """
     try:
-        return evaluate_faithfulness(
-            input.query, input.retrieved_context, input.generated_answer
-        )
+        return evaluate_faithfulness(input.query, input.retrieved_context, input.generated_answer)
     except Exception as e:
         return f"ERROR: Faithfulness check failed — {type(e).__name__}: {e}"
 

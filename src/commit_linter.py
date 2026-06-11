@@ -108,8 +108,7 @@ def lint_commit_message(commit_message: str) -> str:
         result_lines.append("\n\U0001f4d6 Reference: https://www.conventionalcommits.org")
     else:
         result_lines.append(
-            "\n\U0001f389 Commit message is fully compliant "
-            "with Conventional Commits v1.0."
+            "\n\U0001f389 Commit message is fully compliant with Conventional Commits v1.0."
         )
 
     return "\n".join(result_lines)
